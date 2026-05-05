@@ -1,0 +1,32 @@
+@page "/events"
+@using EventEase.Models
+@inject NavigationManager Nav
+
+<h1 class="mb-4">Events</h1>
+
+<Virtualize Items="events" Context="ev">
+    <EventCard EventItem="ev" OnViewDetails="NavigateToDetails" />
+</Virtualize>
+
+@code {
+    private List<Event> events = new();
+
+    protected override void OnInitialized()
+    {
+        for (int i = 1; i <= 1000; i++)
+        {
+            events.Add(new Event
+            {
+                Id = i,
+                Name = $"Event {i}",
+                Date = DateTime.Now.AddDays(i),
+                Location = $"City {i}"
+            });
+        }
+    }
+
+    private void NavigateToDetails(int id)
+    {
+        Nav.NavigateTo($"/event/{id}");
+    }
+}

@@ -1,0 +1,48 @@
+@using EventEase.Models
+
+<div class="card m-3 shadow-sm">
+    <div class="card-body">
+
+        <h4 class="card-title">
+            @(string.IsNullOrWhiteSpace(EventItem?.Name) ? "No name available" : EventItem.Name)
+        </h4>
+
+        <p class="card-text">
+            <strong>Date:</strong>
+            @(EventItem?.Date == default ? "No date provided" : EventItem.Date.ToShortDateString())
+        </p>
+
+        <p class="card-text">
+            <strong>Location:</strong>
+            @(string.IsNullOrWhiteSpace(EventItem?.Location) ? "No location" : EventItem.Location)
+        </p>
+
+        <button class="btn btn-primary mt-2"
+                @onclick="GoToDetails"
+                disabled="@(!IsValidEvent)">
+            View Details
+        </button>
+
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Event? EventItem { get; set; }
+
+    [Parameter]
+    public EventCallback<int> OnViewDetails { get; set; }
+
+    private bool IsValidEvent =>
+        EventItem != null &&
+        EventItem.Id > 0 &&
+        !string.IsNullOrWhiteSpace(EventItem.Name);
+
+    private async Task GoToDetails()
+    {
+        if (IsValidEvent)
+        {
+            await OnViewDetails.InvokeAsync(EventItem!.Id);
+        }
+    }
+}

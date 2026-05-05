@@ -1,0 +1,63 @@
+@page "/register/{Id:int}"
+@using EventEase.Models
+@inject EventEase.Services.UserSessionService Session
+@inject EventEase.Services.EventService EventService
+
+<h3>Register for Event</h3>
+
+<EditForm Model="model" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-2">
+        <label>Name:</label>
+        <InputText class="form-control" @bind-Value="model.Name" />
+    </div>
+
+    <div class="mb-2">
+        <label>Email:</label>
+        <InputText class="form-control" @bind-Value="model.Email" />
+    </div>
+
+    <button class="btn btn-primary mt-2" type="submit">Register</button>
+</EditForm>
+
+@if (success)
+{
+    <p style="color:green;">Registration successful!</p>
+}
+
+@if (errorMessage != null)
+{
+    <p style="color:red;">@errorMessage</p>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private RegisterModel model = new();
+    private bool success = false;
+    private string? errorMessage;
+
+    private void HandleValidSubmit()
+    {
+        try
+        {
+            // Guardar en sesión
+            Session.UserName = model.Name;
+            Session.Email = model.Email;
+
+            // Registrar asistencia al evento
+            EventService.RegisterUser(Id, model.Email);
+
+            success = true;
+            errorMessage = null;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Something went wrong. Please try again.";
+            success = false;
+        }
+    }
+}

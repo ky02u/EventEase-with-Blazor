@@ -1,0 +1,55 @@
+@page "/event/{Id:int}"
+@using EventEase.Models
+@inject NavigationManager Nav
+@inject EventEase.Services.EventService EventService
+
+<h1>Event Details</h1>
+
+@if (selectedEvent == null)
+{
+    <p class="text-danger">Event not found.</p>
+    <button class="btn btn-secondary" @onclick="GoBack">Back to Events</button>
+}
+else
+{
+    <h3>@selectedEvent.Name</h3>
+    <p><strong>Date:</strong> @selectedEvent.Date.ToShortDateString()</p>
+    <p><strong>Location:</strong> @selectedEvent.Location</p>
+
+    <!-- 🔥 AQUÍ VA EL ATTENDANCE -->
+    <p><strong>Attendees:</strong> @EventService.GetAttendanceCount(Id)</p>
+
+    <button class="btn btn-primary mt-2" @onclick="GoToRegister">
+        Register
+    </button>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Event? selectedEvent;
+
+    protected override void OnParametersSet()
+    {
+        var events = GetMockEvents();
+        selectedEvent = events.FirstOrDefault(e => e.Id == Id);
+    }
+
+    private void GoToRegister()
+    {
+        Nav.NavigateTo($"/register/{Id}");
+    }
+
+    private void GoBack()
+    {
+        Nav.NavigateTo("/events");
+    }
+
+    private List<Event> GetMockEvents() => new()
+    {
+        new Event { Id = 1, Name = "Tech Conference", Date = DateTime.Now.AddDays(5), Location = "Bogotá" },
+        new Event { Id = 2, Name = "Music Festival", Date = DateTime.Now.AddDays(10), Location = "Medellín" },
+        new Event { Id = 3, Name = "Business Meetup", Date = DateTime.Now.AddDays(15), Location = "Cali" }
+    };
+}
